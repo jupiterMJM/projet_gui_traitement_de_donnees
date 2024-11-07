@@ -31,16 +31,18 @@ class MainWindow(QMainWindow):
         info_layout.addWidget(info_label)
 
         # Add a button to open a file dialog
-        file_button = QPushButton("Choose Scan of bottle 1 and 2")
-        info_layout.addWidget(file_button)
-        file_button.clicked.connect(self.open_file_dialog)
+        self.file_button = QPushButton("Choose Scan of bottle 1 and 2")
+        self.file_button.setStyleSheet("background-color: lightcoral")
+        info_layout.addWidget(self.file_button)
+        self.file_button.clicked.connect(self.open_file_dialog)
 
         self.what_s_bottle2 = QLineEdit("What's in bottle 2?")
         info_layout.addWidget(self.what_s_bottle2)
 
-        calib_button = QPushButton("Choose Calibration File")
-        info_layout.addWidget(calib_button)
-        calib_button.clicked.connect(self.open_file_dialog_bis)
+        self.calib_button = QPushButton("Choose Calibration File")
+        self.calib_button.setStyleSheet("background-color: lightcoral")
+        info_layout.addWidget(self.calib_button)
+        self.calib_button.clicked.connect(self.open_file_dialog_bis)
 
         submit_button = QPushButton("Submit")
         info_layout.addWidget(submit_button)
@@ -84,6 +86,7 @@ class MainWindow(QMainWindow):
             if file_path:
                 print(f"Selected file: {file_path}")
                 self.file_to_data = file_path
+            self.file_button.setStyleSheet("background-color: lightgreen")
         
     def open_file_dialog_bis(self):
             options = QFileDialog.Options()
@@ -92,6 +95,7 @@ class MainWindow(QMainWindow):
             if file_path:
                 print(f"Selected file: {file_path}")
                 self.file_to_calib = file_path
+            self.calib_button.setStyleSheet("background-color: lightgreen")
 
     def plot(self, data_tof_1, data_tof_1_theory, data_tof_2):
         """
