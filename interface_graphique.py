@@ -1,5 +1,5 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget, QHBoxLayout, QFileDialog
+from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget, QHBoxLayout, QFileDialog, QMessageBox
 import pyqtgraph as pg
 from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton
 from ouverture_et_traitement_de_fichier import *
@@ -7,6 +7,7 @@ from ouverture_et_traitement_de_fichier import *
 class MainWindow(QMainWindow):
     def __init__(self):
         self.file_to_data = None
+        self.file_to_calib = None
         super().__init__()
 
         self.setWindowTitle("Comparaison de bouteilles magnétiques")
@@ -56,6 +57,18 @@ class MainWindow(QMainWindow):
         self.plot2 = pg.PlotWidget(title="Bottle 1 x Theory")
         self.plot3 = pg.PlotWidget(title="Bottle 2")
 
+        # link x-axes between plots
+        self.plot2.setXLink(self.plot1)
+        self.plot3.setXLink(self.plot1)
+
+        self.plot1.enableAutoRange(axis='y')
+        self.plot2.enableAutoRange(axis='y')
+        self.plot3.enableAutoRange(axis='y')
+
+        self.plot1.setMouseEnabled(y=False)
+        self.plot2.setMouseEnabled(y=False)
+        self.plot3.setMouseEnabled(y=False)
+
         plot_layout.addWidget(self.plot1)
         plot_layout.addWidget(self.plot2)
         plot_layout.addWidget(self.plot3)
@@ -63,8 +76,8 @@ class MainWindow(QMainWindow):
     def button_callback(self):
         data_tof_1, data_tof_2, data_tof_theory = None, None, None
 
-        if self.file_to_data == None:
-            print("Please select a file")
+        if self.file_to_data == None and self.file_to_calib == None and self.what_s_bottle2.text() not in ("liquid", "gas", "solid"):
+            self.show_error_message("Please select a file and enter the information")
             return
         # Get the information entered by the user
         calib1, calib2 = extract_config_file(self.file_to_calib, what_s_in_bottle2=self.what_s_bottle2.text())
@@ -77,7 +90,12 @@ class MainWindow(QMainWindow):
         # Plot the data
         self.plot(data_tof_1, data_tof_theory, data_tof_2)
 
-
+    def show_error_message(self, message):
+        msg_box = QMessageBox()
+        msg_box.setIcon(QMessageBox.Critical)
+        msg_box.setWindowTitle("Error")
+        msg_box.setText(message)
+        msg_box.exec_()
 
     def open_file_dialog(self):
             options = QFileDialog.Options()
