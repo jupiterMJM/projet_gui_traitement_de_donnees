@@ -35,22 +35,17 @@ class MainWindow(QMainWindow):
         info_layout.addWidget(file_button)
         file_button.clicked.connect(self.open_file_dialog)
 
-        self.calib_alpha = QLineEdit(text="alpha")
-        info_layout.addWidget(self.calib_alpha)
+        self.what_s_bottle2 = QLineEdit("What's in bottle 2?")
+        info_layout.addWidget(self.what_s_bottle2)
 
-        self.calib_V0 = QLineEdit(text="V0")
-        info_layout.addWidget(self.calib_V0)
-
-        self.calib_t0 = QLineEdit(text="t0")
-        info_layout.addWidget(self.calib_t0)
+        calib_button = QPushButton("Choose Calibration File")
+        info_layout.addWidget(calib_button)
+        calib_button.clicked.connect(self.open_file_dialog_bis)
 
         submit_button = QPushButton("Submit")
         info_layout.addWidget(submit_button)
         submit_button.clicked.connect(self.button_callback)
 
-        
-
-        
 
         # Create three plot windows
         plot_layout = QVBoxLayout()
@@ -70,14 +65,12 @@ class MainWindow(QMainWindow):
             print("Please select a file")
             return
         # Get the information entered by the user
-        alpha = float(self.calib_alpha.text())
-        V0 = float(self.calib_V0.text())
-        t0 = float(self.calib_t0.text())
+        calib1, calib2 = extract_config_file(self.file_to_calib, what_s_in_bottle2=self.what_s_bottle2.text())
 
         # Call the function that processes the data
         data_tof_1, data_tof_2 = ouverture_data_tof(self.file_to_data)
-        data_tof_1 = calibration_tof(data_tof_1, alpha, t0, V0)
-        data_tof_2 = calibration_tof(data_tof_2, alpha, t0, V0)
+        data_tof_1 = calibration_tof(data_tof_1, calib1["alpha"], calib1["t0"], calib1["V0"])
+        data_tof_2 = calibration_tof(data_tof_2, calib2["alpha"], calib2["t0"], calib2["V0"])
 
         # Plot the data
         self.plot(data_tof_1, data_tof_theory, data_tof_2)
@@ -92,7 +85,13 @@ class MainWindow(QMainWindow):
                 print(f"Selected file: {file_path}")
                 self.file_to_data = file_path
         
-
+    def open_file_dialog_bis(self):
+            options = QFileDialog.Options()
+            options |= QFileDialog.ReadOnly
+            file_path, _ = QFileDialog.getOpenFileName(self, "Choose File", "", "All Files (*);;Text Files (*.txt)", options=options)
+            if file_path:
+                print(f"Selected file: {file_path}")
+                self.file_to_calib = file_path
 
     def plot(self, data_tof_1, data_tof_1_theory, data_tof_2):
         """

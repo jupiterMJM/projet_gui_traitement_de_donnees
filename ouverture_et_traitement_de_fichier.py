@@ -2,7 +2,7 @@ import h5py as h
 import numpy as np
 import	matplotlib.pyplot as plt
 from annexe_gui import *
-from configuration import *
+import json
 
 
 def ouverture_data_tof(path_to_data):
@@ -38,8 +38,15 @@ def calibration_tof(data_tof, alpha, t0, V0):
     return (energy_axis, signal_E)
 
 
+def extract_config_file(path_to_config, what_s_in_bottle2):
+    with open(path_to_config, 'r') as f:
+        data = json.load(f)
+    return data["bottle1"], data["bottle2"][what_s_in_bottle2]
+
+
 if __name__ == "__main__":
     tof1_data, tof2_data = ouverture_data_tof("data.h5")
-    plt.plot(*calibration_tof(tof1_data, *tof1_config))
-    plt.plot(*calibration_tof(tof2_data, *tof2_config))
+    tof1_config, tof2_config = extract_config_file("configuration.json", "liquid")
+    plt.plot(*calibration_tof(tof1_data, tof1_config["alpha"], tof1_config["t0"], tof1_config["V0"]))
+    plt.plot(*calibration_tof(tof2_data, tof2_config["alpha"], tof2_config["t0"], tof2_config["V0"]))
     plt.show()
