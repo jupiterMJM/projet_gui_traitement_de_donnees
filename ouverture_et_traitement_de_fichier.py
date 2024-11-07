@@ -22,15 +22,17 @@ Tof1_off_avg=np.mean(Tof1_off,axis=0)
 Tof2_on_avg=np.mean(Tof2_on,axis=0)
 Tof2_off_avg=np.mean(Tof2_off,axis=0)
 
-Tof_considere = Tof1_on_avg[0]
+Tof_considere = Tof1_on_avg[0] - np.mean(Tof1_on_avg[0][:600])
 
 alpha, t0, V0 = tof1_config
 
-energy_axis = [tof2eV(t,V0,alpha,t0) for t in tof_axis]
+energy_axis = np.flip([tof2eV(t,V0,alpha,t0) for t in tof_axis])
 signal_E = np.flip(Tof_considere)
+# signal_E = np.flip(Tof_considere)
 for i in range (len(signal_E)):
     signal_E[i] *= np.abs(eV2TOF_Jac(energy_axis[i],alpha,V0))
 
 
-plt.plot(energy_axis, Tof_considere,label='Tof1_on')
+plt.plot(energy_axis, signal_E,label='Tof1_on')
+# plt.plot(tof_axis, Tof_considere,label='Tof1_on')
 plt.show()
