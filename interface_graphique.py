@@ -1,5 +1,5 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget, QHBoxLayout
+from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget, QHBoxLayout, QFileDialog
 import pyqtgraph as pg
 from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton
 
@@ -28,11 +28,27 @@ class MainWindow(QMainWindow):
         info_label = QLabel("Enter Information:")
         info_layout.addWidget(info_label)
 
-        self.info_input = QLineEdit()
-        info_layout.addWidget(self.info_input)
+        # Add a button to open a file dialog
+        file_button = QPushButton("Choose Scan of bottle 1 and 2")
+        info_layout.addWidget(file_button)
+        file_button.clicked.connect(self.open_file_dialog)
+
+        self.calib_alpha = QLineEdit(text="alpha")
+        info_layout.addWidget(self.calib_alpha)
+
+        self.calib_V0 = QLineEdit(text="V0")
+        info_layout.addWidget(self.calib_V0)
+
+        self.calib_t0 = QLineEdit(text="t0")
+        info_layout.addWidget(self.calib_t0)
 
         submit_button = QPushButton("Submit")
         info_layout.addWidget(submit_button)
+        submit_button.clicked.connect(self.button_callback)
+
+        
+
+        
 
         # Create three plot windows
         plot_layout = QVBoxLayout()
@@ -44,6 +60,20 @@ class MainWindow(QMainWindow):
         plot_layout.addWidget(self.plot1)
         plot_layout.addWidget(self.plot2)
         plot_layout.addWidget(self.plot3)
+
+    def button_callback(self):
+        # Get the information entered by the user
+        alpha = self.calib_alpha.text()
+        V0 = self.calib_V0.text()
+        t0 = self.calib_t0.text()
+
+    def open_file_dialog(self):
+            options = QFileDialog.Options()
+            options |= QFileDialog.ReadOnly
+            file_path, _ = QFileDialog.getOpenFileName(self, "Choose File", "", "All Files (*);;Text Files (*.txt)", options=options)
+            if file_path:
+                print(f"Selected file: {file_path}")
+        
 
 
     def plot(self, data_tof_1, data_tof_1_theory, data_tof_2):
