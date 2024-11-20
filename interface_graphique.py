@@ -1,3 +1,10 @@
+"""
+auteur: Maxence BARRE
+date: 2024
+projet: affichage graphique de comparaison des bouteilles magnétiques
+"""
+
+
 import sys
 from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget, QHBoxLayout, QFileDialog, QMessageBox
 import pyqtgraph as pg
@@ -6,6 +13,11 @@ from ouverture_et_traitement_de_fichier import *
 
 class MainWindow(QMainWindow):
     def __init__(self):
+        """
+        initie la fenêtre principale de l'application
+        :param: self
+        :return: None
+        """
         self.file_to_data = None
         self.file_to_calib = None
         self.file_to_theory = None
@@ -80,6 +92,12 @@ class MainWindow(QMainWindow):
         plot_layout.addWidget(self.plot3)
 
     def button_callback(self):
+        """
+        Callback function for the SUBMIT button
+        :param: self
+        :note: fonction qui est appelée quand toutes les données sont remplies
+        :return: None
+        """
         data_tof_1, data_tof_2, data_tof_theory = None, None, None
 
         if self.file_to_data == None and self.file_to_calib == None and self.what_s_bottle2.text() not in ("liquid", "gas", "solid") and self.file_to_theory == None:
@@ -99,6 +117,11 @@ class MainWindow(QMainWindow):
         self.plot(data_tof_1, data_tof_theory, data_tof_2)
 
     def show_error_message(self, message):
+        """
+        Show an error message in a pop-up dialog
+        :param message: str
+        :return: None
+        """
         msg_box = QMessageBox()
         msg_box.setIcon(QMessageBox.Critical)
         msg_box.setWindowTitle("Error")
@@ -106,6 +129,13 @@ class MainWindow(QMainWindow):
         msg_box.exec_()
 
     def open_file_dialog(self):
+            """
+            Open a file dialog to select a file
+            :param: self
+            :return: None
+            :note: fonction pour sélectionner le fichier des données des TOF
+            :note: fonction à effets de bord
+            """
             options = QFileDialog.Options()
             options |= QFileDialog.ReadOnly
             file_path, _ = QFileDialog.getOpenFileName(self, "Choose File", "", "All Files (*);;Text Files (*.txt)", options=options)
@@ -115,6 +145,13 @@ class MainWindow(QMainWindow):
             self.file_button.setStyleSheet("background-color: lightgreen")
         
     def open_file_dialog_bis(self):
+            """
+            Open a file dialog to select a file
+            :param: self
+            :return: None
+            :note: fonction pour sélectionner le fichier de calibration
+            :note: fonction à effets de bord
+            """
             options = QFileDialog.Options()
             options |= QFileDialog.ReadOnly
             file_path, _ = QFileDialog.getOpenFileName(self, "Choose File", "", "All Files (*);;Text Files (*.txt)", options=options)
@@ -124,6 +161,13 @@ class MainWindow(QMainWindow):
             self.calib_button.setStyleSheet("background-color: lightgreen")
 
     def open_file_dialog_ter(self):
+            """
+            Open a file dialog to select a file
+            :param: self
+            :return: None
+            :note: fonction pour sélectionner le fichier de la théorie
+            :note: fonction à effets de bord
+            """
             options = QFileDialog.Options()
             options |= QFileDialog.ReadOnly
             file_path, _ = QFileDialog.getOpenFileName(self, "Choose File", "", "All Files (*);;Text Files (*.txt)", options=options)
@@ -134,6 +178,7 @@ class MainWindow(QMainWindow):
 
     def plot(self, data_tof_1, data_tof_1_theory, data_tof_2):
         """
+        Plot the data in the three windows
         data_tof_1: tuple (energy_axis, signal_E) for bottle 1
         data_tof_1_theory: tuple (energy_axis, signal_E) for bottle 1 x Theory
         data_tof_2: tuple (energy_axis, signal_E) for bottle 2

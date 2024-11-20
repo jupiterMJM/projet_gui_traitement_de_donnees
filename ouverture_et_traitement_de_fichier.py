@@ -1,3 +1,10 @@
+"""
+auteur : Maxence BARRE
+date : 2024
+projet : affichage graphique de comparaison des bouteilles magnétiques
+fichier : annexes pour l'ouverture et le traitement des fichiers de données
+"""
+
 import h5py as h
 import numpy as np
 import	matplotlib.pyplot as plt
@@ -6,6 +13,11 @@ import json
 
 
 def ouverture_data_tof(path_to_data):
+    """
+    Ouvre un fichier de données et extrait les données de temps de vol
+    :param path_to_data: str
+    :return: tuple
+    """
     with h.File(path_to_data, "r") as f:
         Tof1 = np.squeeze(np.array(f['RawData']['Scan000']['Detector000']['Data1D']['CH00']['Data00']))
         Tof2 = np.squeeze(np.array(f['RawData']['Scan000']['Detector000']['Data1D']['CH00']['Data01']))
@@ -25,6 +37,14 @@ def ouverture_data_tof(path_to_data):
 
 
 def calibration_tof(data_tof, alpha, t0, V0):
+    """
+    Calibre les données de temps de vol en énergie
+    :param data_tof: tuple
+    :param alpha: float
+    :param t0: float
+    :param V0: float
+    :return: tuple
+    """
     tof_axis, tof = data_tof
     tof_considere = tof - np.mean(tof[:600])
     energy_axis = np.flip([tof2eV(t,V0,alpha,t0) for t in tof_axis])
@@ -35,6 +55,12 @@ def calibration_tof(data_tof, alpha, t0, V0):
 
 
 def extract_config_file(path_to_config, what_s_in_bottle2):
+    """
+    Extrait les données de configuration du fichier json
+    :param path_to_config: str
+    :param what_s_in_bottle2: str
+    :return: tuple
+    """
     with open(path_to_config, 'r') as f:
         data = json.load(f)
     return data["bottle1"], data["bottle2"][what_s_in_bottle2]
@@ -42,6 +68,12 @@ def extract_config_file(path_to_config, what_s_in_bottle2):
 
 
 def apply_theory_on_bottle1(path_to_theory, data_tof_1):
+    """
+    Applique la théorie sur les données de la bouteille 1 pour comparaison avec les données de la bouteille 2
+    :param path_to_theory: str
+    :param data_tof_1: tuple
+    :return: tuple
+    """
     # extraction des données de la théorie
     theory=np.loadtxt(path_to_theory)
     energies, value = np.flip(np.abs(theory[0])), theory[1]
