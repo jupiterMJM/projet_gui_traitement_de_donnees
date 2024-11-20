@@ -6,7 +6,7 @@ projet: affichage graphique de comparaison des bouteilles magnétiques
 
 
 import sys
-from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget, QHBoxLayout, QFileDialog, QMessageBox
+from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget, QHBoxLayout, QFileDialog, QMessageBox, QComboBox
 import pyqtgraph as pg
 from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton
 from ouverture_et_traitement_de_fichier import *
@@ -50,7 +50,10 @@ class MainWindow(QMainWindow):
         info_layout.addWidget(self.file_button)
         self.file_button.clicked.connect(self.open_file_dialog)
 
-        self.what_s_bottle2 = QLineEdit("What's in bottle 2?")
+        info_label = QLabel("What's in bottle 2?")
+        self.what_s_bottle2 = QComboBox()
+        self.what_s_bottle2.addItems(["liquid", "gas"])
+        info_layout.addWidget(info_label)
         info_layout.addWidget(self.what_s_bottle2)
 
         self.calib_button = QPushButton("Choose Calibration File")
@@ -100,11 +103,11 @@ class MainWindow(QMainWindow):
         """
         data_tof_1, data_tof_2, data_tof_theory = None, None, None
 
-        if self.file_to_data == None and self.file_to_calib == None and self.what_s_bottle2.text() not in ("liquid", "gas", "solid") and self.file_to_theory == None:
+        if self.file_to_data == None and self.file_to_calib == None and self.what_s_bottle2.currentText() not in ("liquid", "gas", "solid") and self.file_to_theory == None:
             self.show_error_message("Please select a file and enter the information")
             return
         # Get the information entered by the user
-        calib1, calib2 = extract_config_file(self.file_to_calib, what_s_in_bottle2=self.what_s_bottle2.text())
+        calib1, calib2 = extract_config_file(self.file_to_calib, what_s_in_bottle2=self.what_s_bottle2.currentText())
 
         # Call the function that processes the data
         data_tof_1, data_tof_2 = ouverture_data_tof(self.file_to_data)

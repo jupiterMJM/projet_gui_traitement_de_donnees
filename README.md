@@ -13,7 +13,7 @@ Utilisation :
 
 Roadmap :
 - vérification de la cohérence des graphiques
-- améliorer le renseignement de "what's in bottle 1"
 - ajouter un encadré de notes
 - permettre l'enregistrement des graphiques et du workspace
 - mieux gérer les erreurs (éviter les erreurs fatales)
+- mieux organiser l'affichage pour entrer les données
