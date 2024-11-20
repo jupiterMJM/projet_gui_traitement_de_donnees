@@ -6,10 +6,6 @@ import json
 
 
 def ouverture_data_tof(path_to_data):
-
-    data_tof1 = []
-    data_tof2 = []
-
     with h.File(path_to_data, "r") as f:
         Tof1 = np.squeeze(np.array(f['RawData']['Scan000']['Detector000']['Data1D']['CH00']['Data00']))
         Tof2 = np.squeeze(np.array(f['RawData']['Scan000']['Detector000']['Data1D']['CH00']['Data01']))
@@ -44,9 +40,23 @@ def extract_config_file(path_to_config, what_s_in_bottle2):
     return data["bottle1"], data["bottle2"][what_s_in_bottle2]
 
 
+
+def apply_theory_on_bottle1(path_to_theory, data_tof_1):
+    # extraction des données de la théorie
+    theory=np.loadtxt(path_to_theory)
+    energies, value = np.flip(np.abs(theory[0])), theory[1]
+
+    # interpolation des données de la théorie
+    theory_interpolate = np.interp(data_tof_1[0], energies, value)
+
+    # application de l'opération de convolution entre la théorie et la bouteille 1
+    convol = np.convolve(theory_interpolate, data_tof_1[1], mode='same')
+    return (data_tof_1[0], convol)
+
+
 if __name__ == "__main__":
     tof1_data, tof2_data = ouverture_data_tof("data.h5")
     tof1_config, tof2_config = extract_config_file("configuration.json", "liquid")
-    plt.plot(*calibration_tof(tof1_data, tof1_config["alpha"], tof1_config["t0"], tof1_config["V0"]))
-    plt.plot(*calibration_tof(tof2_data, tof2_config["alpha"], tof2_config["t0"], tof2_config["V0"]))
+    tof1_data = calibration_tof(tof1_data, tof1_config["alpha"], tof1_config["t0"], tof1_config["V0"])
+    plt.plot(*apply_theory_on_bottle1("WaterLiquidValence_smooth.txt", tof1_data))
     plt.show()

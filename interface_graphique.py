@@ -8,6 +8,7 @@ class MainWindow(QMainWindow):
     def __init__(self):
         self.file_to_data = None
         self.file_to_calib = None
+        self.file_to_theory = None
         super().__init__()
 
         self.setWindowTitle("Comparaison de bouteilles magnétiques")
@@ -45,6 +46,11 @@ class MainWindow(QMainWindow):
         info_layout.addWidget(self.calib_button)
         self.calib_button.clicked.connect(self.open_file_dialog_bis)
 
+        self.theory_button = QPushButton("Choose Theory File")
+        self.theory_button.setStyleSheet("background-color: lightcoral")
+        info_layout.addWidget(self.theory_button)
+        self.theory_button.clicked.connect(self.open_file_dialog_ter)
+
         submit_button = QPushButton("Submit")
         info_layout.addWidget(submit_button)
         submit_button.clicked.connect(self.button_callback)
@@ -76,7 +82,7 @@ class MainWindow(QMainWindow):
     def button_callback(self):
         data_tof_1, data_tof_2, data_tof_theory = None, None, None
 
-        if self.file_to_data == None and self.file_to_calib == None and self.what_s_bottle2.text() not in ("liquid", "gas", "solid"):
+        if self.file_to_data == None and self.file_to_calib == None and self.what_s_bottle2.text() not in ("liquid", "gas", "solid") and self.file_to_theory == None:
             self.show_error_message("Please select a file and enter the information")
             return
         # Get the information entered by the user
@@ -86,6 +92,8 @@ class MainWindow(QMainWindow):
         data_tof_1, data_tof_2 = ouverture_data_tof(self.file_to_data)
         data_tof_1 = calibration_tof(data_tof_1, calib1["alpha"], calib1["t0"], calib1["V0"])
         data_tof_2 = calibration_tof(data_tof_2, calib2["alpha"], calib2["t0"], calib2["V0"])
+
+        data_tof_theory = apply_theory_on_bottle1(self.file_to_theory, data_tof_1)
 
         # Plot the data
         self.plot(data_tof_1, data_tof_theory, data_tof_2)
@@ -114,6 +122,15 @@ class MainWindow(QMainWindow):
                 print(f"Selected file: {file_path}")
                 self.file_to_calib = file_path
             self.calib_button.setStyleSheet("background-color: lightgreen")
+
+    def open_file_dialog_ter(self):
+            options = QFileDialog.Options()
+            options |= QFileDialog.ReadOnly
+            file_path, _ = QFileDialog.getOpenFileName(self, "Choose File", "", "All Files (*);;Text Files (*.txt)", options=options)
+            if file_path:
+                print(f"Selected file: {file_path}")
+                self.file_to_theory = file_path
+            self.theory_button.setStyleSheet("background-color: lightgreen")
 
     def plot(self, data_tof_1, data_tof_1_theory, data_tof_2):
         """
