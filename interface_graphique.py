@@ -6,7 +6,7 @@ projet: affichage graphique de comparaison des bouteilles magnétiques
 
 
 import sys
-from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget, QHBoxLayout, QFileDialog, QMessageBox, QComboBox
+from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget, QHBoxLayout, QFileDialog, QMessageBox, QComboBox, QDialog
 import pyqtgraph as pg
 from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton
 from ouverture_et_traitement_de_fichier import *
@@ -70,6 +70,9 @@ class MainWindow(QMainWindow):
         info_layout.addWidget(submit_button)
         submit_button.clicked.connect(self.button_callback)
 
+        graphs_annexe_button = QPushButton("Show graphs")
+        info_layout.addWidget(graphs_annexe_button)
+        graphs_annexe_button.clicked.connect(self.button_graph_callback)
 
         # Create three plot windows
         plot_layout = QVBoxLayout()
@@ -111,13 +114,27 @@ class MainWindow(QMainWindow):
 
         # Call the function that processes the data
         data_tof_1, data_tof_2 = ouverture_data_tof(self.file_to_data)
-        data_tof_1 = calibration_tof(data_tof_1, calib1["alpha"], calib1["t0"], calib1["V0"])
+        data_tof_1 = list(calibration_tof(data_tof_1, calib1["alpha"], calib1["t0"], calib1["V0"]))
+        # print(data_tof_1[0])
+        data_tof_1[0] = data_tof_1[0] + 15.76
         data_tof_2 = calibration_tof(data_tof_2, calib2["alpha"], calib2["t0"], calib2["V0"])
 
-        data_tof_theory = apply_theory_on_bottle1(self.file_to_theory, data_tof_1)
+        # # juste un test (il faut l'enlever après)
+        # data_tof_1 = (np.linspace(-1, 1, 1001), np.sin(2 * 10 * np.pi * np.linspace(-1, 1, 1001)))
+
+        data_tof_theory, complementary_data = apply_theory_on_bottle1(self.file_to_theory, data_tof_1, return_data_interpolate = True)
+        self.complementary_data = complementary_data
+
 
         # Plot the data
         self.plot(data_tof_1, data_tof_theory, data_tof_2)
+
+    def button_graph_callback(self):
+        print("button_graph_callback")  
+        self.graph_popup = GraphPopup(self, *self.complementary_data)
+        self.graph_popup.exec_()
+        
+
 
     def show_error_message(self, message):
         """
@@ -187,10 +204,31 @@ class MainWindow(QMainWindow):
         data_tof_2: tuple (energy_axis, signal_E) for bottle 2
         """
         # Plot data
+        print(f"len : {data_tof_1_theory}")
         if data_tof_1: self.plot1.plot(data_tof_1[0], data_tof_1[1], pen='r')
         if data_tof_1_theory: self.plot2.plot(data_tof_1_theory[0], data_tof_1_theory[1], pen='g')
         if data_tof_2: self.plot3.plot(data_tof_2[0], data_tof_2[1], pen='b')
 
+
+class GraphPopup(QDialog):
+    def __init__(self, parent=None, energy=None, bottle1=None, theory=None):
+        super().__init__(parent)
+        self.setWindowTitle("Graph Popup")
+        self.setGeometry(100, 100, 800, 600)
+
+        layout = QVBoxLayout()
+        self.setLayout(layout)
+
+        # Create two plot windows
+        self.plot1 = pg.PlotWidget(title="Bottle 1 interpolate")
+        self.plot2 = pg.PlotWidget(title="Theory Interpolate")
+
+        layout.addWidget(self.plot1)
+        layout.addWidget(self.plot2)
+
+        # Plot data
+        self.plot1.plot(energy, bottle1, pen='r')
+        self.plot2.plot(energy, theory, pen='g')
         
 
 if __name__ == "__main__":

@@ -24,16 +24,16 @@ def ouverture_data_tof(path_to_data):
         tof_axis = 10**6*np.squeeze(np.array(f['RawData']['Scan000']['Detector000']['Data1D']['CH00']['Axis00']))
         shutter_axis = np.squeeze(np.array(f['RawData']['Scan000']['NavAxes']['Axis01']))
 
-    Tof1_on = Tof1[:,np.squeeze(np.where(shutter_axis%2==1)),:]
-    # Tof1_off= Tof1[:,np.squeeze(np.where(shutter_axis%2==0)),:]
-    Tof2_on = Tof2[:,np.squeeze(np.where(shutter_axis%2==1)),:]
-    # Tof2_off= Tof2[:,np.squeeze(np.where(shutter_axis%2==0)),:]
+    # Tof1_on = Tof1[:,np.squeeze(np.where(shutter_axis%2==1)),:]
+    Tof1_off= Tof1[:,np.squeeze(np.where(shutter_axis%2==0)),:]
+    # Tof2_on = Tof2[:,np.squeeze(np.where(shutter_axis%2==1)),:]
+    Tof2_off= Tof2[:,np.squeeze(np.where(shutter_axis%2==0)),:]
 
-    Tof1_on_avg=np.mean(Tof1_on,axis=0)
-    # Tof1_off_avg=np.mean(Tof1_off,axis=0)
-    Tof2_on_avg=np.mean(Tof2_on,axis=0)
-    # Tof2_off_avg=np.mean(Tof2_off,axis=0)
-    return (tof_axis, Tof1_on_avg[0]), (tof_axis, Tof2_on_avg[0])
+    # Tof1_on_avg=np.mean(Tof1_on,axis=0)
+    Tof1_off_avg=np.mean(Tof1_off,axis=0)
+    # Tof2_on_avg=np.mean(Tof2_on,axis=0)
+    Tof2_off_avg=np.mean(Tof2_off,axis=0)
+    return (tof_axis, Tof1_off_avg[0]), (tof_axis, Tof2_off_avg[0])
 
 
 def calibration_tof(data_tof, alpha, t0, V0):
@@ -67,7 +67,7 @@ def extract_config_file(path_to_config, what_s_in_bottle2):
 
 
 
-def apply_theory_on_bottle1(path_to_theory, data_tof_1):
+def apply_theory_on_bottle1(path_to_theory, data_tof_1, return_data_interpolate = False):
     """
     Applique la théorie sur les données de la bouteille 1 pour comparaison avec les données de la bouteille 2
     :param path_to_theory: str
@@ -76,14 +76,37 @@ def apply_theory_on_bottle1(path_to_theory, data_tof_1):
     """
     # extraction des données de la théorie
     theory=np.loadtxt(path_to_theory)
-    energies, value = np.flip(np.abs(theory[0])), theory[1]
+    energies, value = theory[0], theory[1]
 
-    # interpolation des données de la théorie
-    theory_interpolate = np.interp(data_tof_1[0], energies, value)
+    # on enleve l'offset des valeurs
+    value = value - np.min(value)
+    # print(energies)
 
+    # juste un test (il faut l'enlever après)
+    energies = np.linspace(-max(np.min(data_tof_1[0]), np.max(data_tof_1[0])), max(np.min(data_tof_1[0]), np.max(data_tof_1[0])), 10000)
+    from scipy import signal
+    dirac = np.zeros_like(energies)
+    zero_crossings = np.where(np.diff(np.sign(energies)))[0]
+    dirac[zero_crossings] = 1
+    value = dirac
+
+    # # interpolation des données de la théorie
+    x_min = min(data_tof_1[0][0], np.min(energies))
+    x_max = max(data_tof_1[0][-1], np.max(energies))
+    # print(x_min, x_max)
+    x_common = np.arange(x_min, x_max, step=min(data_tof_1[0][1]-data_tof_1[0][0], abs(energies[1]-energies[0])))
+    print("x_common", x_common)
+    # print(np.where(np.diff(np.sign(x_common)) != 0)[0])
+    # Interpoler les deux ensembles de données sur l'ensemble commun d'abscisses
+    y1_interpolated = np.interp(x_common, data_tof_1[0], data_tof_1[1], left=0, right=0)
+    y2_interpolated = np.interp(x_common, energies, value, left = 0, right=0)
+    print("y1_interpolated", y1_interpolated)
+    print("value", value)
+    print("y2_interpolated", y2_interpolated)
     # application de l'opération de convolution entre la théorie et la bouteille 1
-    convol = np.convolve(theory_interpolate, data_tof_1[1], mode='same')
-    return (data_tof_1[0], convol)
+    convol = np.convolve(y1_interpolated, y2_interpolated, mode='same')
+    if return_data_interpolate: return (x_common, convol), (x_common, y1_interpolated, y2_interpolated)
+    return (x_common, convol)
 
 
 if __name__ == "__main__":
