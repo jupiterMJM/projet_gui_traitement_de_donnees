@@ -10,6 +10,7 @@ import numpy as np
 import	matplotlib.pyplot as plt
 from annexe_gui import *
 import json
+from scipy.signal import convolve
 
 
 def ouverture_data_tof(path_to_data):
@@ -105,7 +106,7 @@ def apply_theory_on_bottle1(path_to_theory, data_tof_1, return_data_interpolate 
     print("value", value)
     print("y2_interpolated", y2_interpolated)
     # application de l'opération de convolution entre la théorie et la bouteille 1
-    convol = np.convolve(y1_interpolated, y2_interpolated, mode='same')
+    convol = convolve(y1_interpolated, y2_interpolated, mode='same')
     if return_data_interpolate: return (x_common, convol), (x_common, y1_interpolated, y2_interpolated)
     return (x_common, convol)
 
