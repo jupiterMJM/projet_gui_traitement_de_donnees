@@ -81,6 +81,20 @@ class MainWindow(QMainWindow):
         self.plot2 = pg.PlotWidget(title="Bottle 1 x Theory")
         self.plot3 = pg.PlotWidget(title="Bottle 2")
 
+        # Add a common infinite line to the three plots
+        self.inf_line1 = pg.InfiniteLine(angle=90, movable=True, pen='y')
+        self.inf_line2 = pg.InfiniteLine(angle=90, movable=True, pen='y')
+        self.inf_line3 = pg.InfiniteLine(angle=90, movable=True, pen='y')
+        self.plot1.addItem(self.inf_line1, ignoreBounds=True)
+        self.plot2.addItem(self.inf_line2, ignoreBounds=True)
+        self.plot3.addItem(self.inf_line3, ignoreBounds=True)
+        self.plot1.addItem(self.inf_line1, ignoreBounds=True)
+        self.plot2.addItem(self.inf_line2, ignoreBounds=True)
+        self.plot3.addItem(self.inf_line3, ignoreBounds=True)
+        self.inf_line1.sigPositionChanged.connect(self.update_infinite_line)
+        self.inf_line2.sigPositionChanged.connect(self.update_infinite_line)
+        self.inf_line3.sigPositionChanged.connect(self.update_infinite_line)
+
         # link x-axes between plots
         self.plot2.setXLink(self.plot1)
         self.plot3.setXLink(self.plot1)
@@ -96,6 +110,26 @@ class MainWindow(QMainWindow):
         plot_layout.addWidget(self.plot1)
         plot_layout.addWidget(self.plot2)
         plot_layout.addWidget(self.plot3)
+
+        # Add a label to display the position of the infinite line
+        self.inf_line1_label = QLabel("Position: 0.0")
+        info_layout.addWidget(self.inf_line1_label)
+        
+        
+
+
+    def update_infinite_line(self):
+        """
+        Update the position of the infinite line in the three plots
+        """
+        sender = self.sender()
+        pos = sender.value()
+
+        # Update all lines to the same position
+        self.inf_line1.setValue(pos)
+        self.inf_line2.setValue(pos)
+        self.inf_line3.setValue(pos)
+        self.inf_line1_label.setText(f"Position: {pos:.2f}")
 
     def button_callback(self):
         """
