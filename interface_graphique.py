@@ -116,7 +116,7 @@ class MainWindow(QMainWindow):
         data_tof_1, data_tof_2 = ouverture_data_tof(self.file_to_data)
         data_tof_1 = list(calibration_tof(data_tof_1, calib1["alpha"], calib1["t0"], calib1["V0"]))
         # print(data_tof_1[0])
-        data_tof_1[0] = data_tof_1[0] + 15.76
+        data_tof_1[0] = data_tof_1[0] + 21.56
         data_tof_2 = calibration_tof(data_tof_2, calib2["alpha"], calib2["t0"], calib2["V0"])
 
         # # juste un test (il faut l'enlever après)

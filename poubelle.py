@@ -11,8 +11,10 @@ x = np.linspace(-max(np.min(g[:,0]), np.max(g[:,0])), max(np.min(g[:,0]), np.max
 
 # Define two functions f(x) and g(x)
 dirac = np.zeros_like(x)
-zero_crossings = np.where(np.diff(np.sign(x)))[0]
+zero_crossings = np.where(np.diff(np.sign(x+10)))[0]
 dirac[zero_crossings] = 1
+f = dirac
+# dirac = signal.unit_impulse(10000, 5000+100)
 f = dirac
 
 value = np.interp(x, g[:, 0], g[:,1], left=0, right=0)

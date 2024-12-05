@@ -25,4 +25,5 @@ def eV2TOF_Jac(E,alpha,V0):
     :param V0: float
     :return: float
     """
-    return 0.5*(np.sqrt(np.abs((E - V0)/alpha)))
+    # return 0.5*(np.sqrt(np.abs((E - V0)/alpha)))
+    return 0.5*np.sqrt(np.abs(alpha/(E-V0)**3))

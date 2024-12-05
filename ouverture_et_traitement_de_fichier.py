@@ -83,16 +83,17 @@ def apply_theory_on_bottle1(path_to_theory, data_tof_1, return_data_interpolate 
     # print(energies)
 
     # juste un test (il faut l'enlever après)
-    energies = np.linspace(-max(np.min(data_tof_1[0]), np.max(data_tof_1[0])), max(np.min(data_tof_1[0]), np.max(data_tof_1[0])), 10000)
-    from scipy import signal
-    dirac = np.zeros_like(energies)
-    zero_crossings = np.where(np.diff(np.sign(energies)))[0]
-    dirac[zero_crossings] = 1
-    value = dirac
+    # energies = np.linspace(-max(np.min(data_tof_1[0]), np.max(data_tof_1[0])), max(np.min(data_tof_1[0]), np.max(data_tof_1[0])), 10000)
+    # energies = np.linspace(-1, 1, 10)
+    # from scipy import signal
+    # dirac = np.zeros_like(energies)
+    # zero_crossings = np.where(np.diff(np.sign(energies)))[0]
+    # dirac[zero_crossings] = 1
+    # value = dirac
 
     # # interpolation des données de la théorie
-    x_min = min(data_tof_1[0][0], np.min(energies))
-    x_max = max(data_tof_1[0][-1], np.max(energies))
+    x_min = -max(abs(data_tof_1[0][-1]), abs(data_tof_1[0][-1]), abs(energies[0]), abs (energies[1]))    #min(data_tof_1[0][0], np.min(energies))
+    x_max = max(abs(data_tof_1[0][-1]), abs(data_tof_1[0][-1]), abs(energies[0]), abs (energies[1]))
     # print(x_min, x_max)
     x_common = np.arange(x_min, x_max, step=min(data_tof_1[0][1]-data_tof_1[0][0], abs(energies[1]-energies[0])))
     print("x_common", x_common)
