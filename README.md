@@ -1,6 +1,10 @@
 Projet : Interface graphique pour affichage des données du TOF
 Auteur : Maxence BARRE
 
+Avant toute utilisation:
+- dans un environnement virtuel, installer les modules nécessaires (pip install -r requirement.txt)
+- vérifier que le programme interface_graphique.py fonctionne
+
 Utilisation :
 - Enregistrer les données des 2 TOF au format .h5 .
   - Attention : les données doivent être compatibles avec l'algorithme d'ouverture (voir fichier ouverture_et_traitement_de_fichier.py)
@@ -9,11 +13,3 @@ Utilisation :
 - Lancer le fichier interface_graphique.py
 - Renseigner toutes les informations. Une fois que toutes les données sont rentrées, appuyer sur "Submit" et les données apparaissent
   - Note : rien ne s'affichera tant qu'il reste des informations en rouge (= non remplies)
-
-
-Roadmap :
-- vérification de la cohérence des graphiques
-- ajouter un encadré de notes
-- permettre l'enregistrement des graphiques et du workspace
-- mieux gérer les erreurs (éviter les erreurs fatales)
-- mieux organiser l'affichage pour entrer les données
